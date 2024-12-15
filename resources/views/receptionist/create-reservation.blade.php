@@ -5,65 +5,55 @@
 
 @section('content')
 
-<div class="max-w-6xl bg-white p-4 rounded-lg text-sm md:text-xs">
+<div class="max-w-6xl mx-auto bg-white p-6 rounded-lg text-sm md:text-xs">
     <form action="">
-        {{-- kolom input check-in / Out --}}
-        <div class="flex items-center p-2 mb-4 text-yellow-800 rounded-lg bg-yellow-50 text-[11px]" role="alert">
-            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-            </svg>
-            <span class="sr-only">Info</span>
-            <div>
-            <span class="font-medium">Masukkan tanggal check-in & check-out di bawah ini!</span>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- guest name --}}
+            <div class="space-y-2">
+                <div class="">
+                    <label for="name" class="text-[11px] text-gray-600">Pilih Akun tamu</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="name" name="name" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="nama tamu" required>
+                        <a href="">
+                            <button class="border-2 border-blue-500 px-3 py-2 rounded-md">
+                                buat akun
+                            </button>
+                        </a>
+                    </div>                </div>
+                <div class="">
+                    <label for="name" class="text-[11px] text-gray-600">Email Tamu</label>
+                    <input type="email" id="name" name="name" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="email tamu" required>
+                </div>
             </div>
-        </div>
-        <div class="space-x-3 flex pb-4 border-b">
-            {{-- input tanggal check-in --}}
-            <div>
-                <input type="text" id="check-in" name="check_in_date" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="Select check-in date">
-            </div>
-            {{-- input tanggal check-out --}}
-            <div>
-                <input type="text" id="check-out" name="check_out_date" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="Select check-out date">
-            </div>
-            {{-- button untuk mengecek tanggal dan menampilkan tipe kamar yang tersedia --}}
+    
+            {{-- kolom input check-in / Out --}}
             <div class="">
-                <button id="check-button" type="button" class="bg-rose-600 hover:bg-rose-700 rounded-md px-4 py-2 text-white">Check</button>
-            </div>
-        </div>
-
-        {{-- guest name --}}
-        <div class="space-y-4 my-6">
-            <div class="flex space-x-2">
-                <div class="flex">
-                    <label for="title"></label>
-                    <select name="title" id="title" class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500">
-                        <option value="Mr">Mr</option>
-                        <option value="Mrs">Mrs</option>
-                        <option value="Ms">Ms</option>
-                    </select>        
+                <div class="flex items-center p-2 mb-4 text-yellow-800 rounded-lg bg-yellow-50 text-[11px]" role="alert">
+                    <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div>
+                    <span class="font-medium">Masukkan tanggal check-in & check-out di bawah ini!</span>
+                    </div>
                 </div>
-                <div class="flex-1">
-                    <label for="name"></label>
-                    <input type="text" id="name" name="name" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="guest name" required>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="">
-                    <label for="name"></label>
-                    <input type="email" id="email" name="email" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="guest email" required>
-                </div>
-                <div class="">
-                    <label for="name"></label>
-                    <input type="number" id="phone_number" name="phone_number" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="guest phone number" required>
-                </div>
-                <div class="">
-                    <label for="name"></label>
-                    <input type="text" id="nationality" name="nationality" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="guest nationality">
+                <div class="space-x-3 flex pb-4 border-b">
+                    {{-- input tanggal check-in --}}
+                    <div>
+                        <input type="text" id="check-in" name="check_in_date" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="Pilih check-in date">
+                    </div>
+                    {{-- input tanggal check-out --}}
+                    <div>
+                        <input type="text" id="check-out" name="check_out_date" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="Pilih check-out date">
+                    </div>
+                    {{-- button untuk mengecek tanggal dan menampilkan tipe kamar yang tersedia --}}
+                    <div class="">
+                        <button id="check-button" type="button" class="bg-rose-600 hover:bg-rose-700 rounded-md px-4 py-2 text-white">Check</button>
+                    </div>
                 </div>
             </div>
         </div>
+
 
         <!-- Tabel Daftar Kamar Tersedia-->
         <div id="room-table" class=" hidden py-4">
@@ -90,18 +80,18 @@
                     </thead>
                     <tbody  class="text-left">
                         {{-- tipe kamar yang muncul adalah tipe kamar yang statusnya tersedia --}}
-                        @foreach ($roomTypes as $index => $type)
+                        {{-- @foreach ($roomTypes as $index => $type)
                         <tr class="text-left hover:bg-gray-50">
                             <td class="px-4 py-2 border-b text-center">{{ $index + 1 }}</td>
                             <td class="px-4 py-2 border-b">{{ $type->tipe_kamar }}</td>
-                            <td class="px-4 py-2 border-b">{{ $type->kapasitas }} Adult(s)</td>
+                            <td class="px-4 py-2 border-b">{{ $type->kapasitas }} Adult(s)</td> --}}
                             {{-- harga ini akan berubah sesuai jumlah malam ditanggal check-in & check-out --}}
-                            <td class="px-4 py-2 border-b">IDR 
+                            {{-- <td class="px-4 py-2 border-b">IDR 
                                 <span class="room-price" data-price="{{ $type->harga }}">
                                     {{ number_format($type->harga, 0, ',', ',') }}
                                 </span>
-                            </td>
-                            <td class="px-4 py-2 border-b">
+                            </td> --}}
+                            {{-- <td class="px-4 py-2 border-b">
                                 <div class="relative flex items-center">
                                     <button type="button" id="decrement-button" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1 rounded focus:ring-gray-100 focus:ring-2 focus:outline-none">
                                         <svg class="w-2 h-2 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
@@ -115,28 +105,28 @@
                                         </svg>
                                     </button>
                                 </div>
-                            </td>
-                            <td class="px-4 py-2 border-b">
+                            </td> --}}
+                            {{-- <td class="px-4 py-2 border-b"> --}}
                                 {{-- div untuk memilih tipe kamar --}}
-                                <div class="flex space-x-1 bg-rose-500 hover:bg-rose-700 p-1 text-white rounded items-center justify-center text-center">
+                                {{-- <div class="flex space-x-1 bg-rose-500 hover:bg-rose-700 p-1 text-white rounded items-center justify-center text-center">
                                     <i class="fa-solid fa-tags"></i>
                                     <span>Booking</span>
-                                </div>
+                                </div> --}}
                                 {{-- ketika tipe kamar telah dipilih maka akan berubah warna --}}
                                 {{-- <div class="flex space-x-1 bg-yellow-500 hover:bg-yellow-600 p-1 text-white rounded items-center justify-center text-center">
                                     <i class="fa-solid fa-hashtag"></i>
                                     <span>Booking</span>
                                 </div> --}}
-                            </td>
+                            {{-- </td>
                         </tr>
                         @endforeach
-                    </tbody>
+                    </tbody> --}}
                 </table>
             </div>
         </div>
 
         {{-- select pembayaran --}}
-        <div class="md:flex space-y-3 justify-around py-3 border-y">
+        {{-- <div class="md:flex space-y-3 justify-around py-3 border-y">
             <div class="flex space-x-3 items-center">
                 <i class="fa-solid fa-dollar-sign"></i>
                 <label for="payment_status" class="font-semibold">Payment Status :</label>
@@ -144,9 +134,9 @@
                     <option value="Paid">Paid</option>
                     <option value="Unpaid">Unpaid</option>
                 </select>        
-            </div>
+            </div> --}}
             {{-- select status reservasi --}}
-            <div class="flex space-x-3 items-center">
+            {{-- <div class="flex space-x-3 items-center">
                 <i class="fa-solid fa-tags"></i>
                 <label for="reservation_status" class="font-semibold">Status Reservasi:</label>
                 <select name="reservation_status" id="reservation_status" class="px-6 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500">
@@ -157,7 +147,7 @@
                     <option value="Checked-Out">Cancelled</option>
                 </select>        
             </div>
-        </div>
+        </div> --}}
 
         {{-- button untuk membuat reservasi --}}
         <button type="submit" class="py-2 px-4 bg-green-500 hover:bg-green-600 rounded-md text-white mt-5">Buat</button>

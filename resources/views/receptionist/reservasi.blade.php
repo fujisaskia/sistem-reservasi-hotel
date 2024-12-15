@@ -5,21 +5,21 @@
 
 @section('content')
 
-@if(session('status'))
-    <div class="mb-4 p-2 bg-green-100 text-green-700 border border-green-200 rounded text-xs">
-        {!! html_entity_decode(session('status')) !!}
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="mb-4 p-2 bg-red-100 text-red-700 border border-red-200 rounded text-xs">
-        {!! html_entity_decode(session('error')) !!}
-    </div>
-@endif
-
 
 
 <div class="container bg-white py-8 px-6 rounded-lg text-xs">
+    
+    @if(session('status'))
+        <div class="mb-4 p-2 bg-green-100 text-green-700 border border-green-200 rounded text-xs">
+            {!! html_entity_decode(session('status')) !!}
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="mb-4 p-2 bg-red-100 text-red-700 border border-red-200 rounded text-xs">
+            {!! html_entity_decode(session('error')) !!}
+        </div>
+    @endif
     <h2 class="text-2xl font-bold text-center mb-4">Reservasi Kamar Hotel</h2>
     
     <!-- Filter dan Search -->
@@ -46,12 +46,14 @@
 
 
     <!-- Tambah Reservasi Button -->
-    {{-- <a href="/create-reservation">
-        <button class="flex space-x-2 text-white text-xs items-center bg-green-600 hover:bg-green-700 focus:bg-green-600 p-3 lg:py-2 rounded-lg mb-3 ">
-            <i class="fa-solid fa-plus"></i>
-            <p>Tambah Reservasi</p>
-        </button>
-    </a> --}}
+    <div class="flex justify-end">
+        <a href="/create-reservation">
+            <button class="flex space-x-2 text-white text-xs items-center bg-green-600 hover:bg-green-700 focus:bg-green-600 p-3 lg:py-2 rounded-lg mb-3 ">
+                <i class="fa-solid fa-plus"></i>
+                <p>Buat Reservasi</p>
+            </button>
+        </a>
+    </div>
 
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-200">
@@ -75,7 +77,7 @@
                     <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-600">{{ $reservation->user->full_name }}</td>
                     <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-600">{{ $reservation->roomType->tipe_kamar }}</td>
                     <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-600">IDR  {{ number_format($reservation->total_price, 0, ',', ',') }}</td>
-                    <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-500">{{ \Carbon\Carbon::parse($reservation->reservation_date)->format('M d, Y') }}</td>
+                    <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-400">{{ \Carbon\Carbon::parse($reservation->reservation_date)->format('M d, Y') }}</td>
                     <td class="p-3 lg:p-2 text-sm lg:text-xs text-gray-600">{{ \Carbon\Carbon::parse($reservation->check_in_date)->format('M d, Y') }}</td>
                     {{-- <td class="p-2 text-[11px] font-semibold text-center">
 {{$reservation->payment->payment_status

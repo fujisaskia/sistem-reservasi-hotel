@@ -134,13 +134,13 @@
             </main>
         </div>
 
-        <!-- Footer -->
-        <div class="mt-16">
-            @include('components.footer')
-        </div>
-
+        
     </div>
-
+    
+    <!-- Footer -->
+    <div class="mt-16 bottom-0 w-full ">
+        @include('components.footer')
+    </div>
 
 </body>
 </html>

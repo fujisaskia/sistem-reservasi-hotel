@@ -51,7 +51,18 @@
                     </p>                    
                 </div>
             </div>
+
+            {{-- Kebijakan --}}
+            <div class="space-y-2 py-5 border-b  border-gray-300">
+                <h4 class="font-semibold text-base">Kebijakan  :</h4>
+                <div class="flex space-x-2 items-start px-2">
+                    <i class="fa-solid fa-circle-info text-rose-700"></i>
+                    <p>Pemesanan hanya dapat dilakukan secara online. Semua pemesanan bersifat final, Pembatalan pemesanan harus dilakukan minimal 24 jam sebelum tanggal check-in dan pembatalan <span class="underline">tidak akan mendapatkan pengembalian dana </span>dalam kondisi apa pun.</p>
+                </div>
+            </div>
+
             <div class="space-y-5 py-5">
+
                 {{-- deskripsi --}}
                 <div class="space-y-2">
                     <h4 class="font-semibold text-base">Deskripsi Kamar :</h4>

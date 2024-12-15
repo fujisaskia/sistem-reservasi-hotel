@@ -9,16 +9,14 @@ class ServiceOrder extends Model
 {
     use HasFactory;
 
-    public $timestamps = true; // Pastikan ini aktif
+    public $timestamps = true;
 
     protected $fillable = [
         'reservation_id',
         'service_id',
-        'quantity',
         'price',
         'total_price',
-        'order_date',
-        'notes',
+        'status_order',
     ];
 
     // Relasi ke model Reservation
@@ -27,9 +25,19 @@ class ServiceOrder extends Model
         return $this->belongsTo(Reservation::class);
     }
 
-    // Relasi ke model Layanan
+    // Relasi ke model Service
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    // Event Eloquent untuk menetapkan default status_order ke unpaid
+    protected static function booted()
+    {
+        static::creating(function ($serviceOrder) {
+            if (is_null($serviceOrder->status_order)) {
+                $serviceOrder->status_order = 'unpaid';
+            }
+        });
     }
 }

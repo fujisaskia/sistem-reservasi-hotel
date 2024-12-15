@@ -9,6 +9,8 @@ use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\ReservationConfirmationMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ReceptionistController extends Controller
@@ -44,23 +46,24 @@ class ReceptionistController extends Controller
     }
     
     
-    //resepsionist mengonfirmasi reservasi user
+    //resepsionist mengonfirmasi reservasi user   
     public function confirmReservation($id)
     {
-        $reservation = Reservation::findOrFail($id);
-
-        // Periksa apakah status reservasi saat ini adalah 'pending'
+        $reservation = Reservation::with(['user', 'roomType', 'invoice', 'payment'])->findOrFail($id);
+    
         if ($reservation->reservation_status === 'Pending') {
             $reservation->reservation_status = 'Confirmed';
             $reservation->save();
-
-            // Ambil nama lengkap user yang terkait dengan reservasi
+    
+            // Kirim email konfirmasi
+            if ($reservation->user) {
+                Mail::to($reservation->user->email)->send(new ReservationConfirmationMail($reservation));
+            }
+    
             $userName = $reservation->user ? $reservation->user->full_name : 'Nama user tidak tersedia';
-
-            // Set session dengan nama user dalam tag <strong> untuk membuatnya tebal
+    
             return redirect()->back()->with('status', 'Reservasi oleh <strong>' . $userName . '</strong> berhasil dikonfirmasi!');
         } else {
-            // Jika status tidak 'pending', kembalikan ke halaman sebelumnya dengan pesan kesalahan
             return redirect()->back()->with('error', 'Reservasi tidak dapat dikonfirmasi, mohon periksa status reservasi terlebih dahulu.');
         }
     }
@@ -86,6 +89,16 @@ class ReceptionistController extends Controller
         // Tampilkan form check-in dengan data kamar dan reservasi
         return view('receptionist.in-room', compact('room', 'reservations', 'invoices'));
     }
+    
+    // public function search(Request $request)
+    // {
+    //     $query = $request->get('q');
+    //     $invoices = Invoice::where('invoice_number', 'like', "%{$query}%")
+    //                     ->with('reservation.user')
+    //                     ->get();
+
+    //     return response()->json($invoices);
+    // }
 
     //melakukan proses check-in dan mengubah status
     public function processCheckIn(Request $request, $id)

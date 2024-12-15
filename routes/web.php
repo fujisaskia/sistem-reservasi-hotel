@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ServiceOrderController;
@@ -108,21 +109,25 @@ Route::get('/dashboard/receptionist', [DashboardController::class, 'receptionist
 
 // Route untuk halaman index reservasi
 Route::get('/reservasi', [ReceptionistController::class, 'index'])->name('reservasi.index');
-Route::post('/reservation/{id}/confirm', [ReceptionistController::class, 'confirmReservation'])->name('reservation.confirm');
+Route::match(['get', 'post'], '/reservation/{id}/confirm', [ReceptionistController::class, 'confirmReservation'])
+    ->name('reservation.confirm');
 
 
 // menampilkan data kamar "tersedia" di fitur check-in
 Route::get('/check-in/receptionist', [ReceptionistController::class, 'showAvailableRooms']);
 Route::get('/check-in/in-room/{id}', [ReceptionistController::class, 'showCheckInForm'])->name('checkin.form');
+// Route::get('/search-invoice', [ReceptionistController::class, 'search'])->name('invoice.search');
 Route::post('/check-in/in-room/{id}', [ReceptionistController::class, 'processCheckIn'])->name('checkin.process');
 
 // Route untuk halaman index Guedt
 Route::get('/guest', [ReceptionistController::class, 'showCheckedInReservations'])->name('guest.checked_in');
 Route::get('/layanan-kamar/{reservation}', [ServiceOrderController::class, 'showForm'])->name('layanan.form');
-Route::post('/layanan/create-order', [ServiceOrderController::class, 'createOrder'])->name('layanan.createOrder');
+// Route::post('/layanan/create-order', [ServiceOrderController::class, 'createOrder'])->name('layanan.createOrder');
 Route::get('/detail-layanan/{reservation}', [ServiceOrderController::class, 'showServiceByReservation'])->name('detail-layanan');
 Route::post('/delete-service', [ServiceOrderController::class, 'deleteService']);
 Route::post('/print-services', [ServiceOrderController::class, 'printSelectedServices'])->name('print.services');
+Route::post('/service-orders', [ServiceOrderController::class, 'addServiceOrder'])->name('service-orders.add');
+Route::get('/service-order/{reservationId}', [ServiceOrderController::class, 'showReservationSummary'])->name('service-order');
 
 // menampilkan data kamar "Terisi" di fitur check-in
 Route::get('/check-out', [ReceptionistController::class, 'showOccupiedRooms'])->name('check-out.index');
@@ -132,6 +137,9 @@ Route::get('/invoice/{id}/print', [ReceptionistController::class, 'printInvoice'
 
 Route::get('/new-inroom', function () {
     return view('receptionist.new-inroom');
+});
+Route::get('/create-reservation', function () {
+    return view('receptionist.create-reservation');
 });
 //rute fitur ketersediaan kamar
 Route::get('/rooms/receptionist', [ReceptionistController::class, 'showRoomsData'])->name('receptionist.rooms.index');
@@ -158,15 +166,13 @@ Route::post('/reservations/{roomTypeId}', [ReservationController::class, 'store'
 Route::get('/confirmation/{id}', [ReservationController::class, 'confirmation'])->name('reservations.confirmation');
 Route::put('/reservations/{id}', [ReservationController::class, 'update'])->name('reservations.update');
 Route::delete('/reservations/{roomTypeId}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+//batalkan reservasi ubah status jadi "Cancelled"
+Route::get('/reservation/cancel-by-guest/{id}', [ReservationController::class, 'cancelReservationByGuest'])->name('reservation.cancelByGuest');
 
 //Payment
 Route::post('/payment/snap-token', [PaymentController::class, 'getSnapToken']);
 Route::post('/payment/success', [PaymentController::class, 'updatePaymentStatus'])->name('payment.success');
 
-
-
-
-
-
-
- 
+//Payment Service
+Route::post('/payment-service/snap-token', [PaymentServiceController::class, 'getSnapToken']);
+Route::post('/payment-service/success', [PaymentServiceController::class, 'updatePaymentStatus'])->name('service-payment.success');

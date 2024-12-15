@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CartRoom;
+use Carbon\Carbon;
 use App\Models\RoomType;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
@@ -59,9 +59,15 @@ class UserController extends Controller
             ->where('user_id', Auth::id()) // Memastikan hanya data milik user yang login yang bisa diakses
             ->firstOrFail();
 
+        // Hitung apakah batas waktu pembatalan telah berakhir
+        $canCancel = Carbon::now()->lessThan(
+            Carbon::parse($reservation->check_in_date)->subDay()
+        );
+
         // Mengirimkan data ke view detail-booking
         return view('user.booking-details', [
             'reservation' => $reservation,
+            'canCancel' => $canCancel,
         ]);
     }
 

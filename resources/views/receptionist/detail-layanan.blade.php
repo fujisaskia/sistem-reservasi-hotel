@@ -5,6 +5,9 @@
 
 @section('content')
 
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+
 <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md w-full text-xs">
     <!-- Header -->
     <h1 class="text-lg text-center font-semibold text-gray-700 mb-8">Daftar Layanan Kamar</h1>
@@ -43,7 +46,7 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($services as $index => $order)
+              @forelse($serviceOrder as $index => $order)
                 <tr class="hover:bg-gray-50">
                   <td class="border text-center border-gray-300 p-2">{{ $index + 1 }}</td>
                   <td class="border border-gray-300 p-2">{{ $order->service->name ?? 'N/A' }}</td>
@@ -51,9 +54,6 @@
                   <td class="border border-gray-300 p-2 text-center">{{ $order->quantity }}</td>
                   <td class="border border-gray-300 p-2 text-center">Rp {{ number_format($order->total_price, 0, ',', ',') }}</td>
                   <td class="flex justify-around items-center space-x-1 border border-gray-300 p-2 text-center">
-                    <button onclick="openModal()" class="bg-slate-500 text-white p-1.5 rounded-md hover:bg-slate-600 focus:scale-95 duration-30">
-                      <i class="fa-regular fa-eye"></i>
-                    </button>
                     <button onclick="deleteService({{ $order->id }})" class="text-rose-700 hover:text-rose-800 hover:scale-105 focus:scale-95 duration-300">
                       <i class="fa-solid fa-trash-can"></i>
                     </button>
@@ -78,29 +78,42 @@
           <div class="border-b-2 border-gray-200 p-4 w-full max-w-md">
             <div class="flex justify-between items-center">
               <span class="text-gray-700 font-medium">Total Harga:</span>
-              <span class="text-lg text-rose-900 font-semibold">Rp {{ number_format($totalHarga, 0, ',', ',') }}</span>
+              <span class="text-lg text-rose-900 font-semibold">IDR {{ number_format($totalHarga, 0, ',', ',') }}</span>
             </div>
           </div>
         </div>
+
+        <div class="flex justify-end mt-4 space-x-4">
+            <!-- Tombol untuk Cetak Invoice -->
+            <form id="printForm" method="POST" action="{{ route('print.services') }}">
+              @csrf
+              <!-- Tambahkan checkbox layanan di sini -->
+              @foreach($serviceOrder as $service)
+                <label class="hidden">
+                  <input type="checkbox" name="service_ids[]" value="{{ $service->id }}">
+                  {{ $service->name }}
+                </label>
+              @endforeach
+              <div id="selectedServicesContainer"></div>
+              <div class="flex">
+                <button type="button" onclick="collectSelectedServices()" class="flex items-center space-x-1 bg-blue-600 text-white px-6 py-2 rounded-l-xl hover:bg-blue-700">
+                  <i class="fa-solid fa-print"></i>
+                  <span>Cetak Layanan</span>
+                </button>
+              </div>
+            </form>
+            <div class="">
+              <button 
+              class="flex items-center space-x-1 bg-rose-600 text-white px-6 py-2 rounded hover:bg-rose-700">
+              {{-- id="pay-button-{{ $serviceOrder->id }}" 
+              data-service-order-id="{{ $serviceOrder->id }}"> --}}
+              <span>Bayar Layanan</span>
+          </button>
+          
+            </div>
+        </div>
+
       
-        <!-- Tombol untuk Cetak Invoice -->
-        <form id="printForm" method="POST" action="{{ route('print.services') }}">
-          @csrf
-          <!-- Tambahkan checkbox layanan di sini -->
-          @foreach($services as $service)
-            <label class="hidden">
-              <input type="checkbox" name="service_ids[]" value="{{ $service->id }}">
-              {{ $service->name }}
-            </label>
-          @endforeach
-          <div id="selectedServicesContainer"></div>
-          <div class="flex justify-end mt-4">
-            <button type="button" onclick="collectSelectedServices()" class="flex items-center space-x-1 bg-blue-600 text-white px-6 py-2 rounded-l-xl hover:bg-blue-700">
-              <i class="fa-solid fa-print"></i>
-              <span>Cetak Layanan</span>
-            </button>
-          </div>
-        </form>
         
       </div>
       
@@ -109,53 +122,8 @@
 </div>
 
 
-<!-- Modal Popup -->
-<div id="detailsModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white shadow-lg p-4 w-full md:w-1/4 text-xs  border border-gray-300">
-        <h2 class="text-base text-center font-semibold text-gray-800 mb-6">DETAIL PEMESANAN</h2>
-        <div class="space-y-5">
-            <div class="flex justify-between">
-                <span class="text-gray-700">Tanggal:</span>
-                <span class="font-medium text-gray-800">12 Desember 2024</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-700">Layanan:</span>
-                <span class="font-medium text-gray-800">Nasi Goreng Spesial</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-700">Harga:</span>
-                <span class="font-medium text-gray-800">Rp 25.000</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-700">Jumlah:</span>
-                <span class="font-medium text-gray-800">2</span>
-            </div>
-            <div class="flex justify-between border-t border-gray-300 pt-2 mt-2">
-                <span class="text-gray-700">Total:</span>
-                <span class="font-semibold text-gray-800">Rp 50.000</span>
-            </div>
-            <div class="flex flex-col mt-2">
-                <span class="text-gray-700">Catatan:</span>
-                <span class="font-medium text-gray-800 mt-2">Tidak ada tambahan.</span>
-            </div>
-        </div>
-        <div class="mt-8 text-center">
-            <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600">
-                Tutup
-            </button>
-        </div>
-    </div>
-</div>
 
 <script>
-    function openModal() {
-        document.getElementById('detailsModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-        document.getElementById('detailsModal').classList.add('hidden');
-    }
-
 
   // Script untuk memilih semua checkbox
 function selectAllCheckboxes() {
@@ -205,6 +173,67 @@ function collectSelectedServices() {
             });
         }
     }
+
+
+    // document.querySelectorAll('[id^="pay-button-"]').forEach(button => {
+    //     button.addEventListener('click', function () {
+    //       const serviceOrderId = this.dataset.serviceOrderId;
+
+    //         // Fetch Snap Token dari server
+    //         fetch('/payment-service/snap-token', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+    //             },
+    //             body: JSON.stringify({ service_orders_id: serviceOrderId }),
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             // Panggil modal Snap Midtrans
+    //             window.snap.pay(data.snapToken, {
+    //                 onSuccess: function (result) {
+    //                     // Kirim data ke server untuk memperbarui status pembayaran
+    //                     fetch("{{ route('service-payment.success') }}", {
+    //                         method: 'POST',
+    //                         headers: {
+    //                             'Content-Type': 'application/json',
+    //                             'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    //                         },
+    //                         body: JSON.stringify({ 
+    //                             order_id: result.order_id, 
+    //                             payment_status: 'success' 
+    //                         })
+    //                     })
+    //                     .then(response => response.json().then(data => ({ status: response.status, data }))) // Tangkap status HTTP
+    //                     .then(({ status, data }) => {
+    //                         if (status === 200) {
+    //                             alert(data.message || 'Pembayaran berhasil!');
+    //                             window.location.href = '/guest'; // Redirect ke halaman my-booking
+    //                         } else {
+    //                             throw new Error(data.message || 'Gagal memperbarui status pembayaran.');
+    //                         }
+    //                     })
+    //                     .catch(error => {
+    //                         console.error('Kesalahan:', error.message);
+    //                         alert('Terjadi kesalahan: ' + error.message);
+    //                     });
+    //                 },
+
+    //                 onPending: function(result) {
+    //                     alert('Menunggu Pembayaran...');
+    //                     window.location.href = '/guest'; // Redirect ke halaman my-booking
+    //                 },
+    //                 onError: function(result) {
+    //                     alert('Pembayaran gagal!');
+    //                     console.log(result);
+    //                 }
+    //             });
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    //     });
+    // });
+
 
 
 </script>

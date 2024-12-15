@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\RoomType;
 use App\Models\Reservation;
-use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mail\ReservationCancelledMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str; // Untuk generate invoice_number yang unik
 
 class ReservationController extends Controller
@@ -166,7 +168,28 @@ public function store(Request $request, $roomTypeId)
         return redirect()->route('user.booking', ['id' => $roomTypeId])
             ->with('success', 'Pesanan berhasil dibatalkan.');
     }
+
     
+    /**
+     * batalkan reservasi oleh tamu
+     */
+    public function cancelReservationByGuest($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        // Periksa apakah masih bisa dibatalkan
+        if (Carbon::now()->greaterThanOrEqualTo(Carbon::parse($reservation->check_in_date)->subDay())) {
+            return redirect()->back()->with('error', 'Batas waktu pembatalan telah berakhir.');
+        }
+
+        // Ubah status menjadi 'cancelled'
+        $reservation->reservation_status = 'Cancelled';
+        $reservation->save();
+
+        Mail::to($reservation->user->email)->send(new ReservationCancelledMail($reservation));
+
+        return redirect()->back()->with('success', 'Reservasi berhasil dibatalkan.');
+    }
     
 }
 

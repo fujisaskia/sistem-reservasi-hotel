@@ -45,7 +45,7 @@
                           </div>
                           <div class="group-hover:-translate-y-6 duration-500">
                               <h2 class="text-white text-lg font-semibold font-playfair">{{ $room->tipe_kamar }}</h2>
-                              <a href="#" class="text-xs text-white underline">Details</a>
+                              <a href="/rooms" class="text-xs text-white underline">Details</a>
                           </div>
                       </div>
                   </div>
