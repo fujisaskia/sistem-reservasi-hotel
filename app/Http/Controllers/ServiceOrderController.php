@@ -16,28 +16,33 @@ class ServiceOrderController extends Controller
     // Menampilkan form input layanan
     public function showForm(Reservation $reservation, Request $request)
     {
-        $categories = ServiceCategory::all(); // Ambil semua kategori layanan
-        $selectedCategory = $request->get('category_id'); // Ambil kategori yang dipilih dari request
-
-        // Ambil semua layanan berdasarkan kategori yang dipilih
+        $categories = ServiceCategory::all();
+        $selectedCategory = $request->get('category_id');
         $services = $selectedCategory
             ? Service::where('service_category_id', $selectedCategory)->get()
             : Service::all();
-
-                // Mengambil layanan berdasarkan reservation_id
-                $serviceOrders = ServiceOrder::where('reservation_id', $reservation)
-                ->where('status_order', 'unpaid')
-                ->get();
-        
-            $totalAmount = $serviceOrders->sum('total_price');
-            
-
-        // Ambil invoice terkait dengan reservasi
-        $invoice = $reservation->invoice; // Menggunakan relasi untuk mengambil data invoice
-
-        return view('receptionist.layanan-kamar', compact('reservation', 'categories', 'services', 'invoice', 'serviceOrders', 'totalAmount'));
+    
+        $serviceOrders = ServiceOrder::where('reservation_id', $reservation->id)
+            ->where('status_order', 'unpaid')
+            ->get();
+    
+        $totalAmount = $serviceOrders->isNotEmpty()
+            ? $serviceOrders->sum('price')
+            : 0;
+    
+        $invoice = $reservation->invoice;
+    
+        return view('receptionist.layanan-kamar', compact(
+            'reservation', 
+            'categories', 
+            'services', 
+            'invoice', 
+            'serviceOrders', 
+            'totalAmount'
+        ));
     }
-
+    
+    //menambah service order
     public function addServiceOrder(Request $request)
     {
         $serviceOrders = ServiceOrder::create([
@@ -55,6 +60,8 @@ class ServiceOrderController extends Controller
             'serviceOrders' => $serviceOrders
         ]);
     }
+    
+    
 
     public function showReservationSummary($reservationId)
     {
@@ -69,49 +76,7 @@ class ServiceOrderController extends Controller
             'orders' => $serviceOrders
         ]);
     }
-    
 
-
-    // Membuat pesanan layanan  
-    // public function createOrder(Request $request)
-    // {
-    //     $validatedData = $request->validate([
-    //         'orders' => 'required|array',
-    //         'orders.*.id' => 'required|exists:services,id',
-    //         'orders.*.quantity' => 'required|integer|min:1',
-    //         'orders.*.price' => 'required|numeric|min:0',
-    //         'reservation_id' => 'required|exists:reservations,id',
-    //     ]);
-
-    //     try {
-    //         $orders = collect($validatedData['orders'])->map(function ($order) use ($validatedData) {
-    //             return [
-    //                 'reservation_id' => $validatedData['reservation_id'],
-    //                 'service_id' => $order['id'],
-    //                 'quantity' => $order['quantity'],
-    //                 'price' => $order['price'],
-    //                 'total_price' => $order['quantity'] * $order['price'],
-    //                 'notes' => $order['notes'] ?? null,
-    //                 'order_date' => now(),
-    //                 'created_at' => now(), // Wajib ada
-    //                 'updated_at' => now(), // Wajib ada
-    //             ];
-    //         });
-
-    //         // Gunakan Eloquent untuk mass insert
-    //         ServiceOrder::insert($orders->toArray());
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Pesanan berhasil disimpan!',
-    //             'redirect' => route('guest.checked_in')
-    //         ], 200);
-
-    //     } catch (\Exception $e) {
-    //         return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
-    //     }
-
-    // }
 
     /**
      * Menampilkan daftar layanan berdasarkan reservation.
@@ -129,7 +94,7 @@ class ServiceOrderController extends Controller
 
         // Ambil data service orders yang terkait dengan reservation
         $serviceOrder = ServiceOrder::where('reservation_id', $reservation->id)
-            ->with('service') // Pastikan relasi ke tabel 'serviceOrder' sudah didefinisikan di model ServiceOrder
+            ->where('status_order', 'paid')
             ->get();
 
         // Hitung total harga
@@ -190,34 +155,6 @@ class ServiceOrderController extends Controller
         // Unduh PDF
         return $pdf->download('layanan-kamar.pdf');
     }
-
-
-
-
-    // public function deleteServiceOrder(Request $request)
-    // {
-    //     $serviceIds = $request->input('service_ids');
-
-    //     // Ambil ID reservasi dari request
-    //     $reservationId = $request->input('reservation_id');
-
-    //     if ($serviceIds) {
-    //         // Menghapus service berdasarkan ID yang dipilih
-    //         ServiceOrder::whereIn('id', $serviceIds)->delete();
-
-    //         // Redirect ke route 'detail-layanan' dengan parameter reservation
-    //         return redirect()->route('detail-layanan', ['reservation' => $reservationId])
-    //             ->with('success', 'Layanan berhasil dihapus.');
-    //     }
-
-    //     // Pastikan $reservationId sudah didefinisikan sebelum redirect
-    //     if (!$reservationId) {
-    //         return redirect()->back()->with('error', 'ID reservasi tidak ditemukan.');
-    //     }
-
-    //     return redirect()->route('detail-layanan', ['reservation' => $reservationId])
-    //         ->with('error', 'Tidak ada layanan yang dipilih.');
-    // }
 
 
     public function getOrderDetails($id)

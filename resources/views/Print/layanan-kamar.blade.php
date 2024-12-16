@@ -106,7 +106,6 @@
                         <th>No</th>
                         <th>Nama Item</th>
                         <th>Harga</th>
-                        <th>Jumlah</th>
                         <th>Subtotal</th>
                     </tr>
                 </thead>
@@ -122,7 +121,6 @@
                                 <div class="text-small">{{ \Carbon\Carbon::parse($service->service_date)->format('M d, Y') }}</div>
                             </td>
                             <td>Rp {{ number_format($service->service->price, 0, ',', ',') }}</td>
-                            <td>{{ $service->quantity }}</td>
                             <td>Rp {{ number_format($service->total_price, 0, ',', ',') }}</td>
                         </tr>
                     @empty

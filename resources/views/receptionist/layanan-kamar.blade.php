@@ -54,6 +54,7 @@
                                 <td class="border border-gray-300 p-2 text-center">
                                     <button
                                         class="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600 add-to-summary">Tambah</button>
+                                        
                                 </td>
                             </tr>
                         @endforeach
@@ -66,29 +67,28 @@
         <div class="mb-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Ringkasan Pesanan</h2>
             <ul id="orderSummary" class="border border-gray-300 rounded-md p-4 bg-gray-50">
+                @if ($serviceOrders->isEmpty())
+                    <p class="text-gray-500 italic">Tidak ada layanan tamu yang dipesan.</p>
+                @else
                 @foreach ($serviceOrders as $order)
-                    <div class="flex justify-between mb-3">
-                        <p>{{ $order->services->name }}</p>
-                        <p>IDR {{ number_format($order->price, 0, ',', '.') }}</p>
-                    </div>
-                    
-                    @php
-                        $totalAmount += $order->price;
-                    @endphp
-                @endforeach
-
-                @php
-                    $totalAmount = 0;
-                @endphp
-
+                <div class="flex justify-between mb-3">
+                    <p>{{ $order->service->name }}</p>
+                    <p>IDR {{ number_format($order->price, 0, ',', '.') }}</p>
+                    <button onclick="deleteService({{ $order->id }})" class="text-rose-700 hover:text-rose-800 hover:scale-105 focus:scale-95 duration-300">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            @endforeach
             
-                <li class="flex justify-between items-center text-base text-rose-900 font-semibold pt-3 border-t">
-                    <span>Total</span>
-                    <span id="totalAmount">IDR {{ number_format($totalAmount, 0, ',', '.') }}</span>
-                </li>
+        
+                    <li class="flex justify-between items-center text-base text-rose-900 font-semibold pt-3 border-t">
+                        <span>Total</span>
+                        <span id="totalAmount">IDR {{ number_format($totalAmount, 0, ',', '.') }}</span>
+                    </li>
+                @endif
             </ul>
-                       
         </div>
+        
 
         <div class="flex justify-end">
             <button id="saveOrder" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">Pesan
@@ -107,104 +107,116 @@
                     const doc = parser.parseFromString(html, 'text/html');
                     document.querySelector('#serviceItems').innerHTML = doc.querySelector('#serviceItems')
                         .innerHTML;
-                    addEventListenersToButtons();
+                        addEventListenersToButtons();
+                    });
                 });
+                
+                    function deleteService(orderId) {
+                        if (confirm("Apakah Anda yakin ingin menghapus layanan ini?")) {
+                            fetch(`/delete-service`, {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ order_id: orderId })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                alert(data.message);
+                                location.reload(); // Refresh halaman setelah penghapusan
+                            });
+                        }
+                    }
+        // proses untuk menambahkan service order
+        document.addEventListener('DOMContentLoaded', function() {
+            const reservationId = "{{ $reservation->id }}"; // Tetapkan di luar semua fungsi
+            const addButtons = document.querySelectorAll('.add-to-summary');
+            const orderSummary = document.getElementById('orderSummary');
+            let totalAmount = 0;
+
+            // Tambahkan layanan ke ringkasan
+            addButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const serviceRow = button.closest('tr');
+                    const serviceId = serviceRow.dataset.id;
+                    const serviceName = serviceRow.dataset.name;
+                    const servicePrice = parseFloat(serviceRow.dataset.price);
+
+                    // Kirim data ke backend
+                    fetch("{{ route('service-orders.add') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            reservation_id: reservationId,
+                            service_id: serviceId,
+                            price: servicePrice,
+                            status_order: 'unpaid' // Tetapkan status unpaid
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                        // Refresh halaman untuk memperbarui ringkasan
+                        location.reload();
+                    }
+                    })
+                    .catch(error => console.error('Error adding service:', error));
+
+            });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-    const reservationId = "{{ $reservation->id }}"; // Tetapkan di luar semua fungsi
-    const addButtons = document.querySelectorAll('.add-to-summary');
-    const orderSummary = document.getElementById('orderSummary');
-    let totalAmount = 0;
 
-    // Tambahkan layanan ke ringkasan
-    addButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const serviceRow = button.closest('tr');
-            const serviceId = serviceRow.dataset.id;
-            const serviceName = serviceRow.dataset.name;
-            const servicePrice = parseFloat(serviceRow.dataset.price);
-
-            // Kirim data ke backend
-            fetch("{{ route('service-orders.add') }}", {
+        // Proses pembayaran
+        document.getElementById('saveOrder').addEventListener('click', function() {
+            fetch('/payment-service/snap-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({
-                    reservation_id: reservationId,
-                    service_id: serviceId,
-                    price: servicePrice,
-                    status_order: 'unpaid' // Tetapkan status unpaid
-                })
+                body: JSON.stringify({ reservation_id: reservationId })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    const li = document.createElement('li');
-                    li.classList.add('flex', 'justify-between', 'items-center', 'text-base', 'text-rose-900', 'font-semibold', 'pt-3', 'border-t');
-                    li.innerHTML = `
-                        <span>${serviceName}</span>
-                        <span>IDR ${servicePrice.toLocaleString()}</span>
-                    `;
-                    orderSummary.appendChild(li);
-                    totalAmount += servicePrice;
-                    document.getElementById('totalAmount').textContent = `IDR ${totalAmount.toLocaleString()}`;
+                if (data.snapToken) {
+                    window.snap.pay(data.snapToken, {
+                        onSuccess: function(result) {
+                            fetch('/payment-service/success', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({
+                                    order_id: result.order_id,
+                                    payment_status: 'success'
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(statusResponse => {
+                                alert(statusResponse.message);
+                            });
+                        },
+                        onPending: function() {
+                            alert("Transaksi tertunda.");
+                        },
+                        onError: function() {
+                            alert("Terjadi kesalahan saat memproses pembayaran.");
+                        },
+                        onClose: function() {
+                            alert("Pembayaran dibatalkan.");
+                        }
+                    });
+                } else {
+                    alert("Gagal mendapatkan Snap Token.");
                 }
             })
-            .catch(error => console.error('Error adding service:', error));
-
+            .catch(error => console.error('Error:', error));
         });
-    });
-
-    // Proses pembayaran
-    document.getElementById('saveOrder').addEventListener('click', function() {
-        fetch('/payment-service/snap-token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ reservation_id: reservationId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.snapToken) {
-                window.snap.pay(data.snapToken, {
-                    onSuccess: function(result) {
-                        fetch('/payment-service/success', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                order_id: result.order_id,
-                                payment_status: 'success'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(statusResponse => {
-                            alert(statusResponse.message);
-                        });
-                    },
-                    onPending: function() {
-                        alert("Transaksi tertunda.");
-                    },
-                    onError: function() {
-                        alert("Terjadi kesalahan saat memproses pembayaran.");
-                    },
-                    onClose: function() {
-                        alert("Pembayaran dibatalkan.");
-                    }
-                });
-            } else {
-                alert("Gagal mendapatkan Snap Token.");
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
 });
 
     </script>

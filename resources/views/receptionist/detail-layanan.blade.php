@@ -40,7 +40,6 @@
                 <th class="border border-gray-300 p-2 text-center">No</th>
                 <th class="border border-gray-300 p-2 text-left">Nama Item</th>
                 <th class="border border-gray-300 p-2 text-center">Harga</th>
-                <th class="border border-gray-300 p-2 text-center">Jumlah</th>
                 <th class="border border-gray-300 p-2 text-center">Subtotal</th>
                 <th class="border border-gray-300 p-2 text-center">Aksi</th>
               </tr>
@@ -50,13 +49,12 @@
                 <tr class="hover:bg-gray-50">
                   <td class="border text-center border-gray-300 p-2">{{ $index + 1 }}</td>
                   <td class="border border-gray-300 p-2">{{ $order->service->name ?? 'N/A' }}</td>
-                  <td class="border border-gray-300 p-2 text-center">Rp {{ number_format($order->price, 0, ',', ',') }}</td>
-                  <td class="border border-gray-300 p-2 text-center">{{ $order->quantity }}</td>
-                  <td class="border border-gray-300 p-2 text-center">Rp {{ number_format($order->total_price, 0, ',', ',') }}</td>
+                  <td class="border border-gray-300 p-2 text-center">IDR {{ number_format($order->price, 0, ',', ',') }}</td>
+                  <td class="border border-gray-300 p-2 text-center">IDR {{ number_format($order->total_price, 0, ',', ',') }}</td>
                   <td class="flex justify-around items-center space-x-1 border border-gray-300 p-2 text-center">
-                    <button onclick="deleteService({{ $order->id }})" class="text-rose-700 hover:text-rose-800 hover:scale-105 focus:scale-95 duration-300">
+                    {{-- <button onclick="deleteService({{ $order->id }})" class="text-rose-700 hover:text-rose-800 hover:scale-105 focus:scale-95 duration-300">
                       <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    </button> --}}
                     <input type="checkbox" name="service_ids[]" value="{{ $order->id }}" class="">
                   </td>
                 </tr>
@@ -102,13 +100,6 @@
                 </button>
               </div>
             </form>
-            <div class="">
-              <button 
-              class="flex items-center space-x-1 bg-rose-600 text-white px-6 py-2 rounded hover:bg-rose-700">
-              {{-- id="pay-button-{{ $serviceOrder->id }}" 
-              data-service-order-id="{{ $serviceOrder->id }}"> --}}
-              <span>Bayar Layanan</span>
-          </button>
           
             </div>
         </div>
@@ -156,85 +147,23 @@ function collectSelectedServices() {
 
 
 
-    function deleteService(orderId) {
-        if (confirm("Apakah Anda yakin ingin menghapus layanan ini?")) {
-            fetch(`/delete-service`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ order_id: orderId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload(); // Refresh halaman setelah penghapusan
-            });
-        }
-    }
-
-
-    // document.querySelectorAll('[id^="pay-button-"]').forEach(button => {
-    //     button.addEventListener('click', function () {
-    //       const serviceOrderId = this.dataset.serviceOrderId;
-
-    //         // Fetch Snap Token dari server
-    //         fetch('/payment-service/snap-token', {
-    //             method: 'POST',
+    // function deleteService(orderId) {
+    //     if (confirm("Apakah Anda yakin ingin menghapus layanan ini?")) {
+    //         fetch(`/delete-service`, {
+    //             method: "POST",
     //             headers: {
     //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+    //                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
     //             },
-    //             body: JSON.stringify({ service_orders_id: serviceOrderId }),
+    //             body: JSON.stringify({ order_id: orderId })
     //         })
     //         .then(response => response.json())
     //         .then(data => {
-    //             // Panggil modal Snap Midtrans
-    //             window.snap.pay(data.snapToken, {
-    //                 onSuccess: function (result) {
-    //                     // Kirim data ke server untuk memperbarui status pembayaran
-    //                     fetch("{{ route('service-payment.success') }}", {
-    //                         method: 'POST',
-    //                         headers: {
-    //                             'Content-Type': 'application/json',
-    //                             'X-CSRF-TOKEN': "{{ csrf_token() }}"
-    //                         },
-    //                         body: JSON.stringify({ 
-    //                             order_id: result.order_id, 
-    //                             payment_status: 'success' 
-    //                         })
-    //                     })
-    //                     .then(response => response.json().then(data => ({ status: response.status, data }))) // Tangkap status HTTP
-    //                     .then(({ status, data }) => {
-    //                         if (status === 200) {
-    //                             alert(data.message || 'Pembayaran berhasil!');
-    //                             window.location.href = '/guest'; // Redirect ke halaman my-booking
-    //                         } else {
-    //                             throw new Error(data.message || 'Gagal memperbarui status pembayaran.');
-    //                         }
-    //                     })
-    //                     .catch(error => {
-    //                         console.error('Kesalahan:', error.message);
-    //                         alert('Terjadi kesalahan: ' + error.message);
-    //                     });
-    //                 },
-
-    //                 onPending: function(result) {
-    //                     alert('Menunggu Pembayaran...');
-    //                     window.location.href = '/guest'; // Redirect ke halaman my-booking
-    //                 },
-    //                 onError: function(result) {
-    //                     alert('Pembayaran gagal!');
-    //                     console.log(result);
-    //                 }
-    //             });
-    //         })
-    //         .catch(error => console.error('Error:', error));
-    //     });
-    // });
-
-
+    //             alert(data.message);
+    //             location.reload(); // Refresh halaman setelah penghapusan
+    //         });
+    //     }
+    // }
 
 </script>
   

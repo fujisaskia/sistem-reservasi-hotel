@@ -46,14 +46,14 @@
 
 
     <!-- Tambah Reservasi Button -->
-    <div class="flex justify-end">
+    {{-- <div class="flex justify-end">
         <a href="/create-reservation">
             <button class="flex space-x-2 text-white text-xs items-center bg-green-600 hover:bg-green-700 focus:bg-green-600 p-3 lg:py-2 rounded-lg mb-3 ">
                 <i class="fa-solid fa-plus"></i>
                 <p>Buat Reservasi</p>
             </button>
         </a>
-    </div>
+    </div> --}}
 
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-200">

@@ -129,6 +129,7 @@ Route::post('/print-services', [ServiceOrderController::class, 'printSelectedSer
 Route::post('/service-orders', [ServiceOrderController::class, 'addServiceOrder'])->name('service-orders.add');
 Route::get('/service-order/{reservationId}', [ServiceOrderController::class, 'showReservationSummary'])->name('service-order');
 
+
 // menampilkan data kamar "Terisi" di fitur check-in
 Route::get('/check-out', [ReceptionistController::class, 'showOccupiedRooms'])->name('check-out.index');
 Route::get('/check-out/{id}', [ReceptionistController::class, 'showCheckOutForm'])->name('check-out.show');

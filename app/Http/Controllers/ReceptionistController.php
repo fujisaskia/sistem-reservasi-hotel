@@ -40,7 +40,7 @@ class ReceptionistController extends Controller
     
         // Urutkan berdasarkan status "Checked-Out" di bawah
         $reservations = $query->orderByRaw("CASE WHEN reservation_status = 'Checked-Out' THEN 1 ELSE 0 END")
-            ->paginate(10);
+            ->paginate(20);
     
         return view('receptionist.reservasi', compact('reservations'));
     }
